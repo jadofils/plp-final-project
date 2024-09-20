@@ -1,0 +1,110 @@
+<style>
+      form{
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+}
+button{
+    width: 30%;
+    height: 35px;
+    background-color: #2C2F33;
+    outline: none;
+    color: #ffffff;
+    font-size: large;
+    cursor: pointer;
+padding: 0;
+border-radius: 6px;
+}
+button:focus{
+    outline: none;
+    border: none;
+    
+}
+
+     .advice-form input,
+        .advice-form select,
+        .advice-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #2C2F33;
+            color: white; /* Set input text color to white */
+            
+        }
+        
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .dropdown-select {
+            display: none; /* Hide the original select */
+        }
+        
+        .dropdown-input {
+            padding: 10px;
+    border: none;
+    color: #ffffff;
+    font-size: large;
+    border-radius: 5px;
+    width: 80%;
+    background-color: #2C2F33;
+        }
+
+        .dropdown-options {
+            position: absolute;
+            background-color: #2C2F33;
+            border: 1px solid #ccc;
+            z-index: 1;
+            width: 100%;
+            display: none;
+            max-height: 200px; /* Limit dropdown height */
+            overflow-y: auto; /* Scrollable */
+        }
+
+        .dropdown-options div {
+            padding: 10px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .dropdown-options div:hover {
+            background-color: #2C2F33;
+        }
+</style>
+<div class="advice-form" id="advice-form">
+      <h2>Ask for Advice</h2>
+      <form id="sendAdvice">
+            <label for="name">Your Name:</label>
+            <input type="text" id="name" name="name" value="<%= user.username %>" readonly>
+
+
+        <label for="senderEmail">Your Email:</label>
+        <input type="email" id="senderEmail" name="senderEmail" value="jasezikeye50@gmail.com" readonly>
+    
+        <label for="senderPassword">Your Email Password:</label>
+        <input type="password" id="senderPassword" name="senderPassword" value="Sezikeye@12" readonly>
+    
+        <label for="recipientEmail">Choose Recipient:</label>
+        <div class="dropdown">
+          <input type="text" id="searchUser" class="dropdown-input" placeholder="Search user..." onfocus="showOptions()" onblur="hideOptions()" autocomplete="off">
+          <input type="hidden" id="recipientEmail" name="recipientEmail"> <!-- Hidden input to store recipient email -->
+          <div class="dropdown-options" id="dropdownOptions" style="display:none;">
+            <% users.forEach(userItem => { %> <!-- Avoid conflicting variable names -->
+              <div class="user-option" data-email="<%= userItem.email %>">
+                <%= userItem.username %> &nbsp;&nbsp; <%= userItem.email %>
+              </div>
+            <% }); %>
+          </div>
+    
+    
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" rows="5" autocomplete="off"></textarea>
+    
+        <button type="submit">Send Advice</button>
+      </form>
+  </div>
+  

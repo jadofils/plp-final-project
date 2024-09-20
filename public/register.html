@@ -1,0 +1,163 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        /* Internal CSS */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #2C2F33;
+            color: white;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .register-form {
+            background-color: #23272A;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+        .register-form h1 {
+            text-align: center;
+            color: #7289DA;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .form-group label {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .form-group input {
+            flex: 2;
+            padding: 10px;
+            border: 1px solid #4E545C;
+            border-radius: 5px;
+            background-color: #2C2F33;
+            color: white;
+        }
+        .form-group i {
+            color: #7289DA;
+        }
+        .form-group input[type="submit"] {
+            background-color: #7289DA;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .form-group input[type="submit"]:hover {
+            background-color: #5B6B8A;
+        }
+        .form-group input[type="submit"]:focus {
+            background-color: #5B6B8A;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: normal;
+        }
+        h1 a {
+            color: #7289DA; /* Color to match the theme */
+            text-decoration: none; /* Remove underline */
+            font-weight: bold; /* Make the link text bold */
+        }
+        h1 a:hover {
+            text-decoration: underline; /* Underline on hover */
+            color: #5B6B8A; /* Darker shade for hover effect */
+        }
+    </style>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="register-form">
+            <h1><i class="fas fa-user-plus"></i> Register</h1>
+            <form id="registerForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="username"><i class="fas fa-user"></i> Username:</label>
+                    <input type="text" id="username" name="username" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="email"><i class="fas fa-envelope"></i> Email:</label>
+                    <input type="email" id="email" name="email" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> Password:</label>
+                    <input type="password" id="password" name="password" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="password2"><i class="fas fa-lock"></i> Confirm Password:</label>
+                    <input type="password" id="password2" name="password2" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="file"><i class="fas fa-upload"></i> Upload File:</label>
+                    <input type="file" id="file" name="file" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Register">
+                </div>
+            </form>
+            <h1>Do you have an account? <a href="/api/login">Login</a></h1>
+        </div>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('registerForm');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Get the form input values
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const file = document.getElementById('file').files[0]; // File input
+        const password = document.getElementById('password').value;
+        const password2 = document.getElementById('password2').value;
+
+        // Log form data to debug
+        console.log('Form Data:', { username, email, file, password, password2 });
+
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('email', email);
+        formData.append('file', file);
+        formData.append('password', password);
+        formData.append('password2', password2);
+
+        try {
+            const response = await fetch('http://localhost:3000/api/users', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                alert(data.message || 'User Not Found');
+            } else {
+                alert('Inserted successfully');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred');
+        }
+    });
+});
+
+    </script>
+</body>
+</html>

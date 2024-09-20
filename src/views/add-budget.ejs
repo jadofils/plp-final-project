@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Budget</title>
+    <style>
+        /* Internal CSS */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #2C2F33;
+            color: white;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .register-form {
+            background-color: #23272A;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+        .register-form h1 {
+            text-align: center;
+            color: #7289DA;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .form-group label {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .form-group input, .form-group select {
+            flex: 2;
+            padding: 10px;
+            border: 1px solid #4E545C;
+            border-radius: 5px;
+            background-color: #2C2F33;
+            color: white;
+        }
+        .form-group i {
+            color: #7289DA;
+        }
+        .form-group input[type="submit"] {
+            background-color: #7289DA;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .form-group input[type="submit"]:hover {
+            background-color: #5B6B8A;
+        }
+        h1 a {
+            color: #7289DA;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        h1 a:hover {
+            text-decoration: underline;
+            color: #5B6B8A;
+        }
+    </style>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+      <div class="container">
+          <div class="register-form">
+              <h1><i class="fas fa-wallet"></i> Add Budget</h1>
+              <form id="budgetForm" action="" method="POST">
+                  <div class="form-group">
+                      <label for="userId"><i class="fas fa-user"></i> User Id:</label>
+                      <input 
+                          type="text" 
+                          id="userId" 
+                          name="userId" 
+                          value="<%= userId %>"  
+                          readonly
+                      >
+                  </div>
+  
+                  <!-- Category selection -->
+                  <div class="form-group">
+                      <label for="categoryId"><i class="fas fa-list"></i> Category:</label>
+                      <select id="categoryId" name="categoryId" required>
+                          <% categories.forEach(function(category) { %>
+                              <option value="<%= category._id %>" <%= category._id == categoryId ? 'selected' : '' %>><%= category.category_name %></option>
+                          <% }) %>
+                      </select>
+                  </div>
+  
+                  <div class="form-group">
+                      <label for="amount"><i class="fas fa-dollar-sign"></i> Amount:</label>
+                      <input 
+                          type="number" 
+                          id="amount" 
+                          name="amount" 
+                          step="0.01" 
+                          required
+                      >
+                  </div>
+                  
+                  <div class="form-group">
+                      <label for="startDate"><i class="fas fa-calendar-alt"></i> Start Date:</label>
+                      <input 
+                          type="date" 
+                          id="startDate" 
+                          name="startDate"
+                          required
+                      >
+                  </div>
+  
+                  <div class="form-group">
+                      <label for="endDate"><i class="fas fa-calendar-alt"></i> End Date:</label>
+                      <input 
+                          type="date" 
+                          id="endDate" 
+                          name="endDate"
+                          required
+                      >
+                  </div>
+  
+                  <div class="form-group">
+                      <input 
+                          type="submit" 
+                          value="Submit"
+                      >
+                  </div>
+              </form>
+          </div>
+      </div>
+      <script>
+          // Set form action dynamically based on selected category ID
+          document.getElementById('categoryId').addEventListener('change', function() {
+              const categoryId = this.value;
+              const form = document.getElementById('budgetForm');
+              form.action = `/budget/add/${categoryId}`;
+          });
+
+          document.getElementById('budgetForm').addEventListener('submit', async (e) => {
+              e.preventDefault(); // Prevent default form submission
+              
+              const categoryId = e.target.categoryId.value;
+              const amount = e.target.amount.value;
+              const startDate = e.target.startDate.value;
+              const endDate = e.target.endDate.value;
+
+              try {
+                  // Send POST request to add budget
+                  const response = await fetch(`/api/budgets/${categoryId}`, {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({ amount, startDate, endDate })
+                  });
+
+                  const result = await response.json();
+
+                  if (response.ok) {
+                      alert('Budget Added Successfully!');
+                      // Redirect to the dashboard or another relevant page
+                      window.location.href = `/api/dashboard`;
+                  } else {
+                      alert(result.message || 'Submission failed. Please try again.');
+                  }
+              } catch (error) {
+                  console.error('An error occurred:', error);
+                  alert('An error occurred while adding the budget. Please try again.');
+              }
+          });
+      </script>
+  </body>
+</html>

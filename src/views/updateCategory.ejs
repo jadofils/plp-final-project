@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update User Data</title>
+    <style>
+        /* Internal CSS */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #2C2F33;
+            color: white;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .register-form {
+            background-color: #23272A;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+        .register-form h1 {
+            text-align: center;
+            color: #7289DA;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .form-group label {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .form-group input {
+            flex: 2;
+            padding: 10px;
+            border: 1px solid #4E545C;
+            border-radius: 5px;
+            background-color: #2C2F33;
+            color: white;
+        }
+        .form-group i {
+            color: #7289DA;
+        }
+        .form-group input[type="submit"] {
+            background-color: #7289DA;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .form-group input[type="submit"]:hover {
+            background-color: #5B6B8A;
+        }
+        h1 a {
+            color: #7289DA;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        h1 a:hover {
+            text-decoration: underline;
+            color: #5B6B8A;
+        }
+    </style>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="register-form">
+            <h1><i class="fas fa-user-plus"></i> Category Updating Form</h1>
+            <form id="categoryForm"> <!-- Specify action and method -->
+                <div class="form-group">
+                    <label for="user_id"><i class="fas fa-user"></i> User ID:</label>
+                    <input 
+                        type="text" 
+                        id="user_id" 
+                        name="user_id" 
+                        value="<%= categories.user_id %>"  
+                        readonly
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="categoryid"><i class="fas fa-tag"></i> Category ID:</label>
+                    <input 
+                        type="text" 
+                        id="categoryid"  
+                        name="categoryid" 
+                        value="<%= categories._id %>"  
+                        readonly
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="category_name"><i class="fas fa-tag"></i> Category Name:</label>
+                    <input 
+                        type="text" 
+                        id="category_name" 
+                        name="category_name"  
+                        value="<%= categories.category_name %>" 
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="description"><i class="fas fa-tag"></i> Description:</label>
+                    <input 
+                        type="text" 
+                        id="description" 
+                        name="description"  
+                        value="<%= categories.description %>" 
+                    >
+                </div>
+                <div class="form-group">
+                    <input 
+                        type="submit" 
+                        value="Update Category"
+                    >
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('categoryForm').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Collect form data
+            const category_name = document.getElementById('category_name').value;
+            const description = document.getElementById('description').value;
+            const categoryId = document.getElementById('categoryid').value;
+            const userId = document.getElementById('user_id').value;
+
+            try {
+                const response = await fetch(`/api/category/${categoryId}/${userId}`, {
+                    method: "PUT",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ category_name, description })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Updated successfully');
+                    window.location.href = '/api/dashboard'; // Redirect to dashboard
+                } else {
+                    alert('Failed to Update: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred during the update.');
+            }
+        });
+    </script>
+</body>
+</html>

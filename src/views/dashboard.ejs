@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/css/dash.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Your existing styles */
+        .actions-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .actions-buttons a {
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            color: white;
+            text-align: center;
+        }
+
+        .edit-link {
+            background-color: #4CAF50; /* Green */
+            margin-right: 5px;
+        }
+
+        .edit-link:hover {
+            background-color: #45a049; /* Darker green */
+        }
+
+        .delete-link {
+            background-color: #f44336; /* Red */
+        }
+
+        .delete-link:hover {
+            background-color: #e53935; /* Darker red */
+        }
+
+        .horizontal-nav {
+            display: flex;
+            justify-content: space-around;
+            background-color: #2C2F33;
+            padding: 10px;
+        }
+
+        .horizontal-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+        }
+
+        .horizontal-nav a:hover {
+            background-color: #575757;
+            border-radius: 3px;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>STORE</h2>
+            <nav>
+                <ul>
+                    <li id="products"><i class="fas fa-box"></i> Products</li>
+                    <li id="category"><i class="fas fa-tags"></i> Categories</li>
+                    <li id="customers"><i class="fas fa-users"></i> Customers</li>
+                    <li id="expenses"><i class="fas fa-warehouse"></i> Expense</li>
+                    <li id="payments"><i class="fas fa-warehouse"></i> Payment</li>
+                    <li id="budgets"><i class="fas fa-warehouse"></i> Budgets</li>
+                    <li id="reports"><i class="fas fa-chart-line"></i> Reports</li>
+                    <li id="settings"><i class="fas fa-cog"></i> Settings</li>
+                    <li><i class="fas fa-sign-out-alt"></i> <a href="/api/logout">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="header">
+                <h1>DASHBOARD</h1>
+                <div class="profile">
+                    <p>Welcome, <%= user.username %>!</p>
+                    <p>Your email: <%= user.email %></p>
+                </div>
+            </header>
+
+            
+           
+   <!-- EJS Template: dashboard.ejs -->
+<div class="filter-selection">
+    <select name="filter-selection" id="filter-selection">
+      <option value="" selected>Select Category</option>
+      <% if (categories && categories.length > 0) { %>
+        <% categories.forEach(category => { %>
+          <option value="<%= category._id %>"><%= category.category_name %></option>
+        <% }); %>
+      <% } %>
+    </select>
+  </div>
+  
+  <div class="stats" id="stats">
+    <div class="stat-box blue">
+      <h3><i class="fas fa-box"></i> PRODUCTS(COST)</h3>
+      <p id="total-product-price"><%= totalProductPrice %></p>
+    </div>
+    <div class="stat-box orange">
+      <h3><i class="fas fa-tags"></i> CATEGORIES</h3>
+      <p><%= categoryCount %></p>
+    </div>
+    <div class="stat-box green" id="customers-card">
+      <h3 id="customers-header"><i class="fas fa-users"></i> Total Revenue</h3>
+      <p id="total-revenue">$ <%= totalRevenue.toFixed(2) %></p>
+    </div>
+    <div class="stat-box red">
+      <h3><i class="fas fa-warehouse"></i> Expense (SALES)</h3>
+      <p id="total-expense-amount"><%= totalExpenseAmount %></p>
+    </div>
+  </div>
+  
+  
+ <div id="othertables-container" style="display: none;">
+   <!-- Dynamic content will be loaded here -->
+            </div>
+
+        </main>
+        <button class="menu-icon" aria-label="Menu"><i class="fas fa-bars"></i></button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>    <script src="/js/dash.js"></script>
+    <script src="/js/charts.js"></script>
+    <script src="/js/frontendHandling.js"></script>
+    
+    <script>
+ 
+
+document.getElementById('filter-selection').addEventListener('change', function() {
+const categoryId = this.value;
+if (categoryId) {
+fetch(`/api/dashboard/category/${categoryId}`)
+.then(response => response.json())
+.then(data => {
+// Update stats section with new data
+document.getElementById('total-product-price').textContent = data.totalProductPrice;
+document.getElementById('total-expense-amount').textContent = data.totalExpenseAmount;
+document.getElementById('total-revenue').textContent = `$ ${data.totalRevenue.toFixed(2)}`;
+})
+.catch(error => console.error('Error:', error));
+}
+});
+
+
+document.getElementById('products').addEventListener('click', async () => {
+try {
+const response = await fetch('/view/products/<%=userId%>/list');
+const html = await response.text();
+document.getElementById('othertables-container').innerHTML = html;
+document.getElementById('othertables-container').style.display = 'block';
+document.getElementById('table-head').style.display = 'block';
+document.getElementById('charts').style.display = 'none';
+} catch (error) {
+console.log('Error fetching products:', error);
+}
+document.querySelectorAll('.delete-link').forEach(link => {
+link.addEventListener('click', async (event) => {
+event.preventDefault();
+const productId = event.target.dataset.productId;
+const userId = event.target.dataset.userId;
+if (confirm('Are you sure you want to delete this expense?')) {
+try {
+const response = await fetch(`/api/products/${productId}/${userId}`, {
+method: 'DELETE',
+headers: {
+'Content-Type': 'application/json',
+}
+});
+
+if (response.ok) {
+event.target.closest('tr').remove();
+alert('Product deleted successfully.');
+setTimeout(() => {
+window.location.href = '/api/dashboard';
+}, 2000);
+} else {
+alert('Error deleting expense.');
+}
+} catch (error) {
+console.log('Error deleting expense:', error);
+alert('Error deleting expense.');
+}
+}
+});
+});
+});
+
+
+
+
+document.getElementById('expenses').addEventListener('click', async () => {
+try {
+const response = await fetch('/view/expense');
+const html = await response.text();
+document.getElementById('othertables-container').innerHTML = html;
+document.getElementById('othertables-container').style.display = 'block';
+document.getElementById('table-head').style.display = 'block';
+document.getElementById('charts').style.display = 'none';
+} catch (error) {
+console.log('Error fetching expenses:', error);
+}
+
+document.querySelectorAll('.delete-link').forEach(link => {
+link.addEventListener('click', async (event) => {
+event.preventDefault();
+const expenseId = event.target.dataset.expenseId;
+const userId = event.target.dataset.userId;
+if (confirm('Are you sure you want to delete this expense?')) {
+try {
+const response = await fetch(`/${userId}/${expenseId}`, {
+method: 'DELETE',
+headers: {
+'Content-Type': 'application/json',
+}
+});
+
+if (response.ok) {
+event.target.closest('tr').remove();
+alert('Expense deleted successfully.');
+setTimeout(() => {
+window.location.href = '/view/expense';
+}, 2000);
+} else {
+alert('Error deleting expense.');
+}
+} catch (error) {
+console.log('Error deleting expense:', error);
+alert('Error deleting expense.');
+}
+}
+});
+});
+});
+
+document.getElementById('category').addEventListener('click', async () => {
+try {
+const response = await fetch('/view/category');
+const html = await response.text();
+document.getElementById('othertables-container').innerHTML = html;
+document.getElementById('othertables-container').style.display = 'block';
+document.getElementById('charts').style.display = 'none';
+document.getElementById('table-head').style.display = 'block';
+} catch (error) {
+console.log('Error fetching category:', error);
+}
+
+// Add event listeners for delete links
+document.querySelectorAll('.delete-link').forEach(link => {
+link.addEventListener('click', async (event) => {
+event.preventDefault(); // Prevent default link behavior
+const categoryId = event.target.dataset.categoryId;
+const userId = event.target.dataset.userId;
+alert(userId) 
+alert(categoryId)
+if (confirm('Are you sure you want to delete this category?')) {
+try {
+// Send DELETE request to the server
+const response = await fetch(`/api/category/${userId}/${categoryId}`, {
+method: 'DELETE',
+headers: {
+'Content-Type': 'application/json',
+}
+});
+const result = await response.json();
+
+if (response.ok) {
+// Remove the deleted category from the DOM
+event.target.closest('tr').remove();
+alert('Category deleted successfully.');
+} else {
+alert(result.error || 'Error deleting category.');
+}
+} catch (error) {
+console.errlogor('Error deleting category:', error);
+alert('Error deleting category.');
+}
+}
+});
+});
+});
+
+
+
+
+document.getElementById('customers').addEventListener('click', async () => {
+try {
+const response = await fetch('/view/users-list');
+const html = await response.text();
+document.getElementById('othertables-container').innerHTML = html;
+document.getElementById('othertables-container').style.display = 'block';
+document.getElementById('charts').style.display = 'none';
+document.getElementById('table-head').style.display = 'block';
+
+
+} catch (error) {
+console.log('Error fetching customers:', error);
+}
+// Add event listeners for delete links
+document.querySelectorAll('.delete-link').forEach(link => {
+link.addEventListener('click', async (event) => {
+event.preventDefault(); // Prevent default link behavior
+const userId = event.target.dataset.userId;
+alert(userId)
+if (confirm('Are you sure you want to delete this user?')) {
+try {
+// Send DELETE request to the server
+const response = await fetch(`/api/users/${userId}`, {
+method: 'DELETE',
+headers: {
+'Content-Type': 'application/json',
+}
+});
+
+const result = await response.json();
+
+if (response.ok) {
+// Remove the deleted user from the DOM
+event.target.closest('tr').remove();
+alert('User deleted successfully.');
+} else {
+alert(result.message || 'Error deleting user.');
+}
+} catch (error) {
+console.log('Error deleting user:', error);
+alert('Error deleting user.');
+}
+}
+});
+});
+});
+
+document.getElementById('payments').addEventListener('click', async () => {
+try {
+const response = await fetch('/view/payments');
+const html = await response.text();
+document.getElementById('othertables-container').innerHTML = html;
+document.getElementById('othertables-container').style.display = 'block';
+document.getElementById('charts').style.display = 'none';
+document.getElementById('table-head').style.display = 'block';
+
+// Attach event listeners to delete links after content is loaded
+const deleteLinks = document.querySelectorAll('.delete-link'); // Adjust selector based on your delete link class or id
+deleteLinks.forEach(link => {
+link.addEventListener('click', confirmDelete);
+});
+
+} catch (error) {
+console.error('Error fetching reports:', error);
+}
+document.querySelectorAll('.delete-link').forEach(link => {
+link.addEventListener('click', async (event) => {
+event.preventDefault(); // Prevent default link behavior
+
+const paymentId = event.target.getAttribute('data-payment-id');
+
+// Confirm the deletion
+if (confirm('Are you sure you want to delete this payment?')) {
+try {
+// Send the DELETE request to the server
+const response = await fetch(`/api/payments/${paymentId}`, {
+method: 'DELETE'
+});
+
+const result = await response.json();
+
+if (response.ok) {
+alert('Payment deleted successfully!');
+
+window.location.reload(); // Reload the page to reflect changes
+} else {
+alert(result.message || 'Delete failed. Please try again.');
+}
+} catch (error) {
+console.error('An error occurred:', error);
+alert('An error occurred while deleting the payment. Please try again.');
+}
+}
+});
+});
+});
+
+
+
+document.getElementById('budgets').addEventListener('click', async () => {
+try {
+const response = await fetch('/view/budget-list');
+const html = await response.text();
+document.getElementById('othertables-container').innerHTML = html;
+document.getElementById('othertables-container').style.display = 'block';
+document.getElementById('charts').style.display = 'none';
+document.getElementById('table-head').style.display = 'block';
+
+// Attach event listeners to delete links after content is loaded
+const deleteLinks = document.querySelectorAll('.delete-link'); // Adjust selector based on your delete link class or id
+deleteLinks.forEach(link => {
+link.addEventListener('click', confirmDelete);
+});
+
+} catch (error) {
+console.error('Error fetching reports:', error);
+} // Attach event listeners to delete buttons
+document.querySelectorAll('.delete-link').forEach(button => {
+button.addEventListener('click', async (event) => {
+event.preventDefault(); // Prevent default link behavior
+
+const budgetId = event.target.getAttribute('data-budget-id');
+
+if (confirm('Are you sure you want to delete this budget?')) {
+try {
+const response = await fetch(`/api/budgets/${budgetId}`, {
+method: 'DELETE',
+headers: {
+'Content-Type': 'application/json'
+}
+});
+
+const result = await response.json();
+
+if (response.ok) {
+alert('Budget deleted successfully!');
+window.location.reload(); // Reload the page or update the UI
+} else {
+alert(result.message || 'Delete failed. Please try again.');
+}
+} catch (error) {
+console.error('An error occurred:', error);
+alert('An error occurred while deleting the budget. Please try again.');
+}
+}
+});
+});
+});
+
+
+
+document.getElementById('reports').addEventListener('click', async () => {
+try {
+const response = await fetch('/report');
+const html = await response.text();
+document.getElementById('othertables-container').innerHTML = html;
+document.getElementById('othertables-container').style.display = 'block';
+document.getElementById('charts').style.display = 'none';
+document.getElementById('table-head').style.display = 'block';
+} catch (error) {
+console.error('Error fetching reports:', error);
+}
+});
+
+
+document.getElementById('settings').addEventListener('click', async () => {
+try {
+const response = await fetch('/settings');
+const html = await response.text();
+document.getElementById('othertables-container').innerHTML = html;
+document.getElementById('othertables-container').style.display = 'block';
+document.getElementById('charts').style.display = 'none';
+document.getElementById('table-head').style.display = 'block';
+} catch (error) {
+console.error('Error fetching settings:', error);
+}
+function showOptions() {
+        document.getElementById('dropdownOptions').style.display = 'block';
+    }
+
+    function hideOptions() {
+        setTimeout(() => {
+            document.getElementById('dropdownOptions').style.display = 'none';
+        }, 200); // Delay to allow click event to register
+    }
+
+    document.getElementById('searchUser').addEventListener('input', function() {
+        const searchInput = this.value.toLowerCase();
+        const options = document.querySelectorAll('.user-option');
+
+        options.forEach(option => {
+            const username = option.textContent.toLowerCase();
+            option.style.display = username.includes(searchInput) ? '' : 'none';
+        });
+    });
+
+    document.querySelectorAll('.user-option').forEach(option => {
+        option.addEventListener('click', function() {
+            document.getElementById('searchUser').value = this.textContent; // Set the input value
+            document.getElementById('recipientEmail').value = this.getAttribute('data-email'); // Set the hidden input value
+            document.getElementById('dropdownOptions').style.display = 'none'; // Hide options
+        });
+    });
+
+
+
+  // Show the dropdown options
+  function showOptions() {
+    document.getElementById('dropdownOptions').style.display = 'block';
+}
+
+// Hide the dropdown options after a short delay to allow clicks
+function hideOptions() {
+    setTimeout(() => {
+        document.getElementById('dropdownOptions').style.display = 'none';
+    }, 200);
+}
+
+// Add event listener for form submission
+document.getElementById('sendAdvice').addEventListener('submit', async function(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const name = document.getElementById('name').value;
+    const senderEmail = document.getElementById('senderEmail').value;
+    const senderPassword = document.getElementById('senderPassword').value;
+    const recipientEmail = document.getElementById('recipientEmail').value;
+    const message = document.getElementById('message').value;
+
+    // Prepare the data to send
+    const data = {
+        name,
+        senderEmail,
+        senderPassword,
+        recipientEmail,
+        message
+    };
+
+    try {
+        const response = await fetch('/api/send-advice', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            alert(result.message); // Show success message
+            // Optionally reset the form
+            document.getElementById('sendAdvice').reset();
+        } else {
+            const error = await response.json();
+            alert(error.message); // Show error message
+        }
+    } catch (error) {
+        console.error('Error sending advice:', error);
+        alert('Failed to send advice. Please try again.');
+    }
+});
+
+// Update recipient email when a user is selected
+document.querySelectorAll('.user-option').forEach(option => {
+    option.addEventListener('click', function() {
+        document.getElementById('searchUser').value = this.textContent; // Set the input value
+        document.getElementById('recipientEmail').value = this.getAttribute('data-email'); // Set the hidden input
+        document.getElementById('dropdownOptions').style.display = 'none'; // Hide options
+    });
+});
+
+});
+    </script>
+</body>
+</html>

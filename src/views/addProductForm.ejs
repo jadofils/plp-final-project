@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Product</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2C2F33;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .form-container {
+            background-color: #23272A;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+        .form-container h1 {
+            text-align: center;
+            color: #7289DA;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #4E545C;
+            border-radius: 5px;
+            background-color: #2C2F33;
+            color: white;
+        }
+        .form-group input[type="submit"] {
+            background-color: #7289DA;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .form-group input[type="submit"]:hover {
+            background-color: #5B6B8A;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1>Create Product</h1>
+            <form id="productForm">
+                <div class="form-group">
+                    <label for="user_id">User ID:</label>
+                    <input type="text" id="user_id" name="user_id" value="<%= userId %>" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="category_id">Category:</label>
+                    <select id="category_id" name="category_id" required>
+                        <% if (categories && categories.length > 0) { %>
+                            <% categories.forEach(category => { %>
+                                <option value="<%= category._id %>" <%= category._id.toString() === categoryId.toString() ? 'selected' : '' %>><%= category.category_name %></option>
+                            <% }); %>
+                        <% } else { %>
+                            <option value="">No categories available</option>
+                        <% } %>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="product_name">Product Name:</label>
+                    <input type="text" id="product_name" name="product_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Price:</label>
+                    <input type="number" id="price" name="price" step="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="stock">Stock:</label>
+                    <input type="number" id="stock" name="stock" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Create Product">
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+    
+            // Get values directly from input fields
+            const categoryId = document.querySelector('#category_id').value;
+            const userId = document.querySelector('#user_id').value;
+            const productName = document.querySelector('#product_name').value;
+            const price = document.querySelector('#price').value;
+            const stock = document.querySelector('#stock').value;
+    
+            // Create data object
+            const data = {
+                userId,
+                product_name: productName,
+                price: parseFloat(price),
+                stock: parseInt(stock)
+            };
+    
+            try {
+                const response = await fetch(`/api/products/${categoryId}/${userId}`, {  // Use categoryId in the URL
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+    
+                const result = await response.json();
+    
+                if (response.ok) {
+                    alert('Product Added successfully!');
+                    window.location.href = '/api/dashboard';
+                } else {
+                    alert('Error updating product: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error updating product.');
+            }
+        });
+    </script>
+    
+</body>
+</html>

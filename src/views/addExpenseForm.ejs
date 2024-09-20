@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Form</title>
+  <style>
+    /* Internal CSS */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #2C2F33;
+        color: white;
+    }
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .register-form {
+        background-color: #23272A;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        max-width: 400px;
+        width: 100%;
+    }
+    .register-form h1 {
+        text-align: center;
+        color: #7289DA;
+        margin-bottom: 20px;
+    }
+    .form-group {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+    }
+    .form-group label {
+        flex: 1;
+        margin-right: 10px;
+    }
+    .form-group input, .form-group select {
+        flex: 2;
+        padding: 10px;
+        border: 1px solid #4E545C;
+        border-radius: 5px;
+        background-color: #2C2F33;
+        color: white;
+    }
+    .form-group i {
+        color: #7289DA;
+    }
+    .form-group input[type="submit"] {
+        background-color: #7289DA;
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 10px;
+        font-size: 16px;
+    }
+    .form-group input[type="submit"]:hover {
+        background-color: #5B6B8A;
+    }
+    h1 a {
+        color: #7289DA;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    h1 a:hover {
+        text-decoration: underline;
+        color: #5B6B8A;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="register-form">
+        <h1><i class="fas fa-user-plus"></i> Expense Creation Form</h1>
+        <form id="expenseForm" method="post" action="/submit-expense">
+            <div class="form-group">
+                <label for="userId"><i class="fas fa-user"></i> User Id:</label>
+                <input 
+                    type="text" 
+                    id="userId" 
+                    name="userId" 
+                    value="<%= userId %>"  
+                    readonly
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="category_id">Category:</label>
+                <select id="category_id" name="category_id" required>
+                    <% if (categories && categories.length > 0) { %>
+                        <% categories.forEach(category => { %>
+                            <option value="<%= category._id %>" <%= category._id.toString() === categoryId.toString() ? 'selected' : '' %>><%= category.category_name %></option>
+                        <% }); %>
+                    <% } else { %>
+                        <option value="">No categories available</option>
+                    <% } %>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="amount"><i class="fas fa-dollar-sign"></i> Amount:</label>
+                <input 
+                    type="number" 
+                    id="amount" 
+                    name="amount" 
+                    step="0.01"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="description"><i class="fas fa-align-left"></i> Description:</label>
+                <input 
+                    type="text" 
+                    id="description" 
+                    name="description"
+                >
+            </div>
+
+            <div class="form-group">
+                <input 
+                    type="submit" 
+                    value="Submit"
+                >
+            </div>
+        </form>
+    </div>
+</div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('expenseForm'); // Corrected ID
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const categoryId = document.querySelector('#category_id').value;
+            const userId = document.querySelector('#userId').value; // Corrected ID
+            const amount = document.querySelector('#amount').value; // Corrected ID
+            const description = document.querySelector('#description').value; // Corrected ID
+
+            const data = {
+                amount: parseFloat(amount), // Ensure amount is a float
+                description: description
+            };
+
+            try {
+                const response = await fetch(`/api/expense/${userId}/${categoryId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Expense added successfully!');
+                    window.location.href = '/api/dashboard'; // Redirect after success
+                } else {
+                    alert('Error adding expense: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error adding expense.');
+            }
+        });
+    } else {
+        console.log('Form element not found');
+    }
+});
+  </script>
+</body>
+</html>

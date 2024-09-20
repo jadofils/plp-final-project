@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget List</title>
+    <style>
+       body {
+            background-color: #1c1c1c; /* Dark background for the whole page */
+            color: #fff; /* White text color */
+            font-family: Arial, sans-serif;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        #table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #2a2a2a; /* Dark background for the table */
+        }
+
+        #table th, #table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #fff; /* White borders */
+            color: #fff; /* White text inside the table */
+        }
+
+        #table th {
+            background-color: #333; /* Slightly lighter color for table headers */
+        }
+
+        #table tbody tr:nth-child(even) {
+            background-color: #2e2e2e; /* Darker shade for even rows */
+        }
+
+        #table tbody tr:nth-child(odd) {
+            background-color: #3a3a3a; /* Darker shade for odd rows */
+        }
+
+        .sticky-col th {
+            position: sticky;
+            top: 0;
+            background-color: #444; /* Sticky header with slightly different color */
+            z-index: 1;
+        }
+
+        /* Styles for buttons */
+        .actions-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .actions-buttons a {
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 3px;
+            color: white;
+            text-align: center;
+        }
+
+        .edit-link {
+            background-color: #4CAF50; /* Green */
+            margin-right: 5px;
+        }
+
+        .edit-link:hover {
+            background-color: #45a049; /* Darker green */
+        }
+
+        .delete-link {
+            background-color: #f44336; /* Red */
+        }
+
+        .delete-link:hover {
+            background-color: #e53935; /* Darker red */
+        }
+    </style>
+</head>
+<body>
+    <div class="table-container">
+        <div class="search-bar">
+            <input type="text"  placeholder="Search..." id="search">
+            <button><i class="fas fa-search"></i></button>
+          </div>
+
+        <h1>Your Budgets</h1>
+        <a href="/view/add-budget" style="display: inline-block; padding: 10px 20px; background-color: #7289DA; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Add New</a>
+
+        <table id="table" class="table table-bordered">
+            <thead class="sticky-col">
+                <tr>
+                    <th>No</th>
+                    <th>User ID</th>
+                    <th>Category ID</th>
+                    <th>Amount</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% budgets.forEach(function(budget, index) { %>
+                    <tr>
+                        <td><%= index + 1 %></td>
+                        <td><%= budget.user_id %></td>
+                        <td><%= budget.category_id %></td>
+                        <td><%= budget.amount %></td>
+                        <td><%= new Date(budget.start_date).toLocaleDateString() %></td>
+                        <td><%= new Date(budget.end_date).toLocaleDateString() %></td>
+                        <td>
+                            <div class="actions-buttons">
+                                <!-- Edit Link -->
+                                <a href="/view/update-budget/<%= budget._id  %>" class="edit-link">Update</a>
+                                <!-- Delete Link -->
+                                <a href="#" class="delete-link" data-budget-id="<%= budget._id %>">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

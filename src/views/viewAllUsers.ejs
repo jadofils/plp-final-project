@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers List</title>
+    <style>
+        /* Your existing styles */
+        body {
+            background-color: #1c1c1c; /* Dark background for the whole page */
+            color: #fff; /* White text color */
+            font-family: Arial, sans-serif;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        #table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #2a2a2a; /* Dark background for the table */
+        }
+
+        #table th, #table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #fff; /* White borders */
+            color: #fff; /* White text inside the table */
+        }
+
+        #table th {
+            background-color: #333; /* Slightly lighter color for table headers */
+        }
+
+        #table tbody tr:nth-child(even) {
+            background-color: #2e2e2e; /* Darker shade for even rows */
+        }
+
+        #table tbody tr:nth-child(odd) {
+            background-color: #3a3a3a; /* Darker shade for odd rows */
+        }
+
+        .sticky-col th {
+            position: sticky;
+            top: 0;
+            background-color: #444; /* Sticky header with slightly different color */
+            z-index: 1;
+        }
+
+        .actions-buttons a {
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 3px;
+            color: white;
+            text-align: center;
+        }
+
+        .edit-link {
+            background-color: #4CAF50; /* Green */
+            margin-right: 5px;
+        }
+
+        .edit-link:hover {
+            background-color: #45a049; /* Darker green */
+        }
+
+        .delete-link {
+            background-color: #f44336; /* Red */
+        }
+
+        .delete-link:hover {
+            background-color: #e53935; /* Darker red */
+        }
+    </style>
+</head>
+<body>
+    <div class="table-container">
+        <h1>Customers List</h1>
+
+        <div class="search-bar">
+            <input type="text" placeholder="Search..." id="search">
+            <button><i class="fas fa-search"></i></button>
+        </div>
+
+        <table id="table" class="table table-bordered">
+            <thead class="sticky-col">
+                <tr>
+                    <th>No</th>
+                    <th>User ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                <% users.forEach((user, index) => { %>
+                    <tr>
+                        <td><%= index + 1 %></td>
+                        <td><%= user._id %></td>
+                        <td><%= user.username %></td>
+                        <td><%= user.email %></td>
+                      
+                        <td><%= new Date(user.created_at).toLocaleDateString() %></td>
+                        <td>
+                            <div class="actions-buttons">
+                                <a href="/view/update-user/<%= user._id %>" class="edit-link">Edit</a>
+                                <a href="#" class="delete-link" data-user-id="<%= user._id %>">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchInput = document.getElementById('search');
+            const rows = document.querySelectorAll('#userTableBody tr');
+    
+            // Function to filter table rows
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                let visibleCount = 0;
+    
+                rows.forEach((row) => {
+                    const cells = row.getElementsByTagName('td');
+                    let match = false;
+    
+                    // Check if any cell in the row matches the search term
+                    for (let i = 0; i < cells.length; i++) {
+                        if (cells[i].innerText.toLowerCase().includes(searchTerm)) {
+                            match = true;
+                            break;
+                        }
+                    }
+    
+                    // Show or hide the row based on the match and visible row limit
+                    if (match && visibleCount < 10) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+    
+            // Add event listener to the search input
+            searchInput.addEventListener('keyup', filterTable);
+    
+            // Initial filtering to show the first 10 rows
+            filterTable();
+        });
+    </script>
+    
+</body>
+</html>

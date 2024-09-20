@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Updation Expense Form</title>
+    <style>
+        /* Internal CSS */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #2C2F33;
+            color: white;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .register-form {
+            background-color: #23272A;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+        .register-form h1 {
+            text-align: center;
+            color: #7289DA;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .form-group label {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .form-group input {
+            flex: 2;
+            padding: 10px;
+            border: 1px solid #4E545C;
+            border-radius: 5px;
+            background-color: #2C2F33;
+            color: white;
+        }
+        .form-group i {
+            color: #7289DA;
+        }
+        .form-group input[type="submit"] {
+            background-color: #7289DA;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .form-group input[type="submit"]:hover {
+            background-color: #5B6B8A;
+        }
+        h1 a {
+            color: #7289DA;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        h1 a:hover {
+            text-decoration: underline;
+            color: #5B6B8A;
+        }
+    </style>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="register-form">
+            <h1><i class="fas fa-user-plus"></i> Expense Update Form</h1>
+            <form id="expenseForm">
+                <div class="form-group">
+                    <label for="userId"><i class="fas fa-user"></i> User Id:</label>
+                    <input 
+                        type="text" 
+                        id="userId" 
+                        name="userId" 
+                        value="<%= expenses[0].user_id %>"  
+                        readonly
+                    >
+                </div>
+    
+                <div class="form-group">
+                    <label for="categoryId"><i class="fas fa-list"></i> Category Id:</label>
+                    <input 
+                        type="text" 
+                        id="categoryId" 
+                        name="categoryId" 
+                        value="<%= expenses[0].category_id %>"  
+                        readonly
+                    >
+                </div>
+    
+                <div class="form-group">
+                    <label for="amount"><i class="fas fa-dollar-sign"></i> Amount:</label>
+                    <input 
+                        type="number" 
+                        id="amount" 
+                        name="amount" 
+                        step="0.01"
+                        value="<%= expenses[0].amount %>"  
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="description"><i class="fas fa-align-left"></i> Description:</label>
+                    <input 
+                        type="text" 
+                        id="description" 
+                        name="description" 
+                        value="<%= expenses[0].description %>"  
+                    >
+                </div>
+                <div class="form-group">
+                    <input 
+                        type="submit" 
+                        value="Update"
+                    >
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Make sure `userId` and `categoryId` are defined in the script
+        const userId = "<%= expenses[0].user_id %>";
+        const categoryId = "<%= expenses[0].category_id %>";
+        const expenseId = "<%= expenses[0]._id %>"; // Assuming _id is available
+        document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent default form submission
+            alert(userId)
+            alert(categoryId)
+            alert(expenseId)
+
+            const amount = e.target.amount.value;
+            const description = e.target.description.value;
+
+            try {
+                // Send PUT request to the correct endpoint
+                const response = await fetch(`http://localhost:3000/api/expense/${userId}/${categoryId}/${expenseId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ amount, description })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Expense updated successfully!');
+                    // Redirect to the dashboard or another relevant page
+                    window.location.href = `/api/dashboard`;
+                } else {
+                    alert(result.message || 'Update failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('An error occurred:', error);
+                alert('An error occurred while updating the expense. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

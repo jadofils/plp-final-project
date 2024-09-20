@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Product</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2C2F33;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .form-container {
+            background-color: #23272A;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+        .form-container h1 {
+            text-align: center;
+            color: #7289DA;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #4E545C;
+            border-radius: 5px;
+            background-color: #2C2F33;
+            color: white;
+        }
+        .form-group input[type="submit"] {
+            background-color: #7289DA;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .form-group input[type="submit"]:hover {
+            background-color: #5B6B8A;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1>Update Product</h1>
+            <form id="updateProductForm">
+                <div class="form-group">
+                    <label for="product_name">Product Name:</label>
+                    <input type="text" id="product_name" name="product_name" value="<%= product.product_name %>" required>
+                </div>
+                <div class="form-group">
+                    <label for="price">Price:</label>
+                    <input type="number" id="price" name="price" value="<%= product.price %>" required>
+                </div>
+                <div class="form-group">
+                    <label for="stock">Stock:</label>
+                    <input type="number" id="stock" name="stock" value="<%= product.stock %>" required>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Update Product">
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('updateProductForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent default form submission
+
+            const productName = document.getElementById('product_name').value;
+            const price = document.getElementById('price').value;
+            const stock = document.getElementById('stock').value;
+
+            // Get the product ID from a hidden input or URL
+            const productId = '<%= product._id %>'; // Adjust this based on how you pass the product ID
+            const userId = '<%= product.user_id %>'; // Adjust this based on how you pass the product ID
+
+            try {
+                const response = await fetch(`/api/products/${userId}/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ product_name: productName, price, stock })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Product updated successfully!');
+                    window.location.href = `/api/dashboard`; // Redirect to the dashboard or another relevant page
+                } else {
+                    alert(result.message || 'Update failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('An error occurred:', error);
+                alert('An error occurred while updating the product. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report</title>
+    <link rel="stylesheet" href="/path/to/your/styles.css"> <!-- Link to your existing stylesheet -->
+<style>
+    body {
+        background-color: #1c1c1c; /* Dark background for the whole page */
+        color: #fff; /* White text color */
+        font-family: Arial, sans-serif;
+    }
+
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    #table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #2a2a2a; /* Dark background for the table */
+    }
+
+    #table th, #table td {
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #fff; /* White borders */
+        color: #fff; /* White text inside the table */
+    }
+
+    #table th {
+        background-color: #333; /* Slightly lighter color for table headers */
+    }
+
+    #table tbody tr:nth-child(even) {
+        background-color: #2e2e2e; /* Darker shade for even rows */
+    }
+
+    #table tbody tr:nth-child(odd) {
+        background-color: #3a3a3a; /* Darker shade for odd rows */
+    }
+
+    .sticky-col th {
+        position: sticky;
+        top: 0;
+        background-color: #444; /* Sticky header with slightly different color */
+        z-index: 1;
+    }
+</style>
+</head>
+<body>
+    <h1>Report for <%= user.username %></h1>
+
+    <!-- Expenses Table -->
+    <h2>Expenses</h2>
+    <div class="table-container">
+        <table id="table" class="table table-bordered">
+            <thead class="sticky-col">
+                <tr>
+                    <th>No</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% let totalAmount = 0; %>
+                <% expenses.forEach((expense, index) => { %>
+                    <tr>
+                        <td><%= index + 1 %></td>
+                        <td><%= expense.category_id ? expense.category_id.category_name : 'Unknown' %></td>
+                        <td><%= expense.amount %></td>
+                        <td><%= new Date(expense.date).toLocaleDateString() %></td>
+                        <td><%= expense.description %></td>
+                    </tr>
+                    <% totalAmount += expense.amount; %>
+                <% }); %>
+                <tr>
+                    <td colspan="2"><strong>Total</strong></td>
+                    <td><%= totalAmount %></td>
+                    <td colspan="2"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Categories Table -->
+    <h2>Categories</h2>
+    <div class="table-container">
+      <table id="table" class="table table-bordered">
+          <thead class="sticky-col">
+                <tr>
+                    <th>No</th>
+                    <th>Category Name</th>
+                    <th>Description</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% categories.forEach((category, index) => { %>
+                    <tr>
+                        <td><%= index + 1 %></td>
+                        <td><%= category.category_name %></td>
+                        <td><%= category.description %></td>
+                        <td><%= new Date(category.created_at).toLocaleDateString() %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Products Table -->
+    <h2>Products</h2>
+    <div class="table-container">
+      <table id="table" class="table table-bordered">
+          <thead class="sticky-col">
+                <tr>
+                    <th>No</th>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% let totalPrice = 0; %>
+                <% let totalStock = 0; %>
+                <% products.forEach((product, index) => { %>
+                    <tr>
+                        <td><%= index + 1 %></td>
+                        <td><%= product.product_name %></td>
+                        <td><%= product.category_id ? product.category_id.category_name : 'Unknown' %></td>
+                         <td><%= product.price %></td>
+                        <td><%= product.stock %></td>
+                        <td><%= new Date(product.created_at).toLocaleDateString() %></td>
+                    </tr>
+                    <% totalPrice += product.price; %>
+                    <% totalStock += product.stock; %>
+                <% }); %>
+                <tr>
+                    <td colspan="3"><strong>Total</strong></td>
+                    <td><%= totalPrice %></td>
+                    <td><%= totalStock %></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Budgets Table -->
+    <h2>Budgets</h2>
+    <div class="table-container">
+      <table id="table" class="table table-bordered">
+          <thead class="sticky-col">
+                <tr>
+                    <th>No</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% let totalBudgetAmount = 0; %>
+                <% budgets.forEach((budget, index) => { %>
+                    <tr>
+                        <td><%= index + 1 %></td>
+                        <td><%= budget.category_id.category_name %></td>
+                        <td><%= budget.amount %></td>
+                        <td><%= new Date(budget.start_date).toLocaleDateString() %></td>
+                        <td><%= new Date(budget.end_date).toLocaleDateString() %></td>
+                    </tr>
+                    <% totalBudgetAmount += budget.amount; %>
+                <% }); %>
+                <tr>
+                    <td colspan="2"><strong>Total</strong></td>
+                    <td><%= totalBudgetAmount %></td>
+                    <td colspan="2"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Payment Methods Table -->
+    <h2>Payment Methods</h2>
+    <div class="table-container">
+      <table id="table" class="table table-bordered">
+          <thead class="sticky-col">
+                <tr>
+                    <th>No</th>
+                    <th>Payment Method Name</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% paymentMethods.forEach((method, index) => { %>
+                    <tr>
+                        <td><%= index + 1 %></td>
+                        <td><%= method.payment_method_name %></td>
+                        <td><%= new Date(method.createdAt).toLocaleDateString() %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

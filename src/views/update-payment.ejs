@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Payment Method</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2C2F33;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .form-container {
+            background-color: #23272A;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+        .form-container h1 {
+            text-align: center;
+            color: #7289DA;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #4E545C;
+            border-radius: 5px;
+            background-color: #2C2F33;
+            color: white;
+        }
+        .form-group input[type="submit"] {
+            background-color: #7289DA;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .form-group input[type="submit"]:hover {
+            background-color: #5B6B8A;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1>Update Payment Method</h1>
+            <form id="updatePaymentForm">
+                  <div class="form-group">
+                        <label for="payment_id">Payment Method Id:</label>
+                        <input type="text" id="payment_id" name="payment_id" value="<%= payment._id %>" readonly>
+                    </div>
+                <div class="form-group">
+                    <label for="payment_method_name">Payment Method Name:</label>
+                    <input type="text" id="payment_method_name" name="payment_method_name" value="<%= payment.payment_method_name %>" required>
+                </div>
+            
+                <div class="form-group">
+                    <label for="createdAt">Date:</label>
+                    <input type="date" id="createdAt" name="createdAt" value="<%= new Date(payment.createdAt).toISOString().split('T')[0] %>" required>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Update Payment">
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('updatePaymentForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent default form submission
+
+            const paymentMethodName = document.getElementById('payment_method_name').value;
+            const createdAt = document.getElementById('createdAt').value;
+
+            // Get the payment ID from a hidden input or URL
+            const paymentId = '<%= payment._id %>'; // Adjust this based on how you pass the payment ID
+            const userId = '<%= payment.user_id %>'; // Adjust this based on how you pass the user ID
+
+            try {
+                const response = await fetch(`/api/payments/${paymentId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ payment_method_name: paymentMethodName, createdAt })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Payment updated successfully!');
+                    window.location.href = `/api/dashboard`; // Redirect to the payments view or another relevant page
+                } else {
+                    alert(result.message || 'Update failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('An error occurred:', error);
+                alert('An error occurred while updating the payment. Please try again.');
+            }
+        });
+
+
+    </script>
+</body>
+</html>
